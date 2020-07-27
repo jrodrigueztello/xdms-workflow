@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.xoftix.xdms.workflow.activiti.service.ActiveMqMessageService;
+import com.xoftix.xdms.workflow.activiti.service.EmailService;
 import com.xoftix.xdms.workflow.activiti.service.ProcessService;
 import com.xoftix.xdms.workflow.activiti.tipo.MessageEventType;
 import com.xoftix.xdms.workflow.activiti.vo.ActiveMqMessageVo;
@@ -28,6 +29,9 @@ public class TaskAssignedEventListener implements TaskRuntimeEventListener<TaskA
 	@Autowired
 	private ProcessService processService;
 
+	@Autowired
+	private EmailService emailService;
+	
 	@Override
 	public void onEvent(TaskAssignedEvent event) {
 		Task task = event.getEntity();
@@ -35,6 +39,10 @@ public class TaskAssignedEventListener implements TaskRuntimeEventListener<TaskA
 		this.event = event;
 		messageService.sendMessage(
 				new ActiveMqMessageVo(MessageEventType.TASK_ASSIGNED, new Date().getTime(), task).toString());
+		//se envia correo al asignado
+		
+		//emailService.enviarNotificacionEmail("prueba", "arodriguez@xoftix.com", "prueba email");
+		//
 		if(event.getEntity().getAssignee().equals("Sistema")) {
 			processService.completeTask(task.getId(), null);
 		}
